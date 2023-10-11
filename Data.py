@@ -50,6 +50,8 @@ class Data:
 @{} adalah Bot Telegram untuk menyimpan Postingan atau File yang dapat Diakses melalui Link Khusus.
 
  • Creator: @{}
+ • Channel: @storyQi
+ • Group: @ExclusiveFeedback
  • Framework: <a href='https://docs.pyrogram.org'>Pyrogram</a>
  • Source Code: <a href='https://github.com/mrismanaziz/File-Sharing-Man'>File-Sharing-Man v4</a>
 
