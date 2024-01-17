@@ -24,7 +24,7 @@ from helper_func import decode, get_messages, subsall, subsch, subsgc
 
 from .button import fsub_button, start_button
 
-START_TIME = datetime.utcnow()
+START_TIME = datetime.now()
 START_TIME_ISO = START_TIME.replace(microsecond=0).isoformat()
 TIME_DURATION_UNITS = (
     ("week", 60 * 60 * 24 * 7),
@@ -118,7 +118,7 @@ async def start_command(client: Bot, message: Message):
                 )
                 await asyncio.sleep(0.5)
             except FloodWait as e:
-                await asyncio.sleep(e.x)
+                await asyncio.sleep(e.value)
                 await msg.copy(
                     chat_id=message.from_user.id,
                     caption=caption,
@@ -126,7 +126,7 @@ async def start_command(client: Bot, message: Message):
                     protect_content=PROTECT_CONTENT,
                     reply_markup=reply_markup,
                 )
-            except BaseException:
+            except Exception:
                 pass
     else:
         out = start_button(client)

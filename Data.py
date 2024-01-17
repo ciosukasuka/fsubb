@@ -53,7 +53,8 @@ class Data:
  • Channel: @storyQi
  • Group: @ExclusiveFeedback
  • Framework: <a href='https://docs.pyrogram.org'>Pyrogram</a>
- • Source Code: <a href='https://github.com/mrismanaziz/File-Sharing-Man'>File-Sharing-Man v4</a>
+ • Code base: <a href='https://github.com/mrismanaziz/File-Sharing-Man'>File-Sharing-Man</a>
+ • Source Code: <a href='https://github.com/Ling-ex/File-Haram'>File-Haram</a>
 
-👨‍💻 Develoved by </b><a href='https://t.me/Lunatic0de/101'>@Lunatic0de</a>
+👨‍💻 Develoved by </b><a href='https://t.me/excute7'>@excute7</a>
 """

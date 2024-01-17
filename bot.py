@@ -2,10 +2,9 @@
 # Recode by @mrismanaziz
 # t.me/SharingUserbot & t.me/Lunatic0de
 
-import pyromod.listen
 import sys
 
-from pyrogram import Client
+from pyrogram import Client, enums
 
 from config import (
     API_HASH,
@@ -19,6 +18,7 @@ from config import (
     TG_BOT_WORKERS,
 )
 
+stop_error = "Bot Berhenti. Gabung Group https://t.me/ExclusiveFeedback untuk Bantuan"
 
 class Bot(Client):
     def __init__(self):
@@ -26,7 +26,8 @@ class Bot(Client):
             "Bot",
             api_hash=API_HASH,
             api_id=APP_ID,
-            plugins={"root": "plugins"},
+            plugins=dict(root="plugins"),
+            parse_mode=enums.ParseMode.HTML,
             workers=TG_BOT_WORKERS,
             bot_token=TG_BOT_TOKEN,
         )
@@ -43,9 +44,7 @@ class Bot(Client):
             )
         except Exception as a:
             self.LOGGER(__name__).warning(a)
-            self.LOGGER(__name__).info(
-                "Bot Berhenti. Gabung Group https://t.me/SharingUserbot untuk Bantuan"
-            )
+            self.LOGGER(__name__).info(stop_error)
             sys.exit()
 
         if FORCE_SUB_CHANNEL:
@@ -67,9 +66,7 @@ class Bot(Client):
                 self.LOGGER(__name__).warning(
                     f"Pastikan @{self.username} adalah admin di Channel Tersebut, Chat ID F-Subs Channel Saat Ini: {FORCE_SUB_CHANNEL}"
                 )
-                self.LOGGER(__name__).info(
-                    "Bot Berhenti. Gabung Group https://t.me/SharingUserbot untuk Bantuan"
-                )
+                self.LOGGER(__name__).info(stop_error)
                 sys.exit()
 
         if FORCE_SUB_GROUP:
@@ -91,9 +88,7 @@ class Bot(Client):
                 self.LOGGER(__name__).warning(
                     f"Pastikan @{self.username} adalah admin di Group Tersebut, Chat ID F-Subs Group Saat Ini: {FORCE_SUB_GROUP}"
                 )
-                self.LOGGER(__name__).info(
-                    "Bot Berhenti. Gabung Group https://t.me/SharingUserbot untuk Bantuan"
-                )
+                self.LOGGER(__name__).info(stop_error)
                 sys.exit()
 
         try:
@@ -109,16 +104,14 @@ class Bot(Client):
             self.LOGGER(__name__).warning(
                 f"Pastikan @{self.username} adalah admin di Channel DataBase anda, CHANNEL_ID Saat Ini: {CHANNEL_ID}"
             )
-            self.LOGGER(__name__).info(
-                "Bot Berhenti. Gabung Group https://t.me/SharingUserbot untuk Bantuan"
-            )
+            self.LOGGER(__name__).info(stop_error)
             sys.exit()
 
-        self.set_parse_mode("html")
         self.LOGGER(__name__).info(
-            f"[🔥 BERHASIL DIAKTIFKAN! 🔥]\n\nBOT Dibuat oleh @{OWNER}\nJika @{OWNER} Membutuhkan Bantuan, Silahkan Tanyakan di Grup https://t.me/SharingUserbot"
+            f"[🔥 BERHASIL DIAKTIFKAN! 🔥]\n\nBOT Dibuat oleh @{OWNER}\nJika @{OWNER} Membutuhkan Bantuan, Silahkan Tanyakan di Grup https://t.me/ExclusiveFeedback"
         )
 
     async def stop(self, *args):
+        self.LOGGER(__name__).info("Bot stopping...")
         await super().stop()
         self.LOGGER(__name__).info("Bot stopped.")

@@ -8,7 +8,7 @@ from bot import Bot
 
 
 @Bot.on_message(filters.command("id") & filters.private)
-async def showid(client, message):
+async def showid(client: Bot, message: Message):
     chat_type = message.chat.type
 
     if chat_type == "private":

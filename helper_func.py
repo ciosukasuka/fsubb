@@ -6,21 +6,20 @@ import asyncio
 import base64
 import re
 
-from pyrogram import filters
-from pyrogram.errors import FloodWait
-from pyrogram.errors.exceptions.bad_request_400 import UserNotParticipant
+from pyrogram import Client, filters, types
+from pyrogram.errors import FloodWait, UserNotParticipant
 
 from config import ADMINS, FORCE_SUB_CHANNEL, FORCE_SUB_GROUP
 
 
-async def subschannel(filter, client, update):
+async def subschannel(filter, c: Client, m: types.Message):
     if not FORCE_SUB_CHANNEL:
         return True
-    user_id = update.from_user.id
+    user_id = m.from_user.id
     if user_id in ADMINS:
         return True
     try:
-        member = await client.get_chat_member(
+        member = await c.get_chat_member(
             chat_id=FORCE_SUB_CHANNEL, user_id=user_id
         )
     except UserNotParticipant:
@@ -29,34 +28,34 @@ async def subschannel(filter, client, update):
     return member.status in ["creator", "administrator", "member"]
 
 
-async def subsgroup(filter, client, update):
+async def subsgroup(filter, c: Client, m: types.Message):
     if not FORCE_SUB_GROUP:
         return True
-    user_id = update.from_user.id
+    user_id = m.from_user.id
     if user_id in ADMINS:
         return True
     try:
-        member = await client.get_chat_member(chat_id=FORCE_SUB_GROUP, user_id=user_id)
+        member = await c.get_chat_member(chat_id=FORCE_SUB_GROUP, user_id=user_id)
     except UserNotParticipant:
         return False
 
     return member.status in ["creator", "administrator", "member"]
 
 
-async def is_subscribed(filter, client, update):
+async def is_subscribed(filter, c: Client, m: types.Message):
     if not FORCE_SUB_CHANNEL:
         return True
     if not FORCE_SUB_GROUP:
         return True
-    user_id = update.from_user.id
+    user_id = m.from_user.id
     if user_id in ADMINS:
         return True
     try:
-        member = await client.get_chat_member(chat_id=FORCE_SUB_GROUP, user_id=user_id)
+        member = await c.get_chat_member(chat_id=FORCE_SUB_GROUP, user_id=user_id)
     except UserNotParticipant:
         return False
     try:
-        member = await client.get_chat_member(
+        member = await c.get_chat_member(
             chat_id=FORCE_SUB_CHANNEL, user_id=user_id
         )
     except UserNotParticipant:
@@ -79,46 +78,46 @@ async def decode(base64_string):
     return string
 
 
-async def get_messages(client, message_ids):
+async def get_messages(c: Client, message_ids):
     messages = []
     total_messages = 0
     while total_messages != len(message_ids):
         temb_ids = message_ids[total_messages : total_messages + 200]
         try:
-            msgs = await client.get_messages(
+            msgs = await c.get_messages(
                 chat_id=client.db_channel.id, message_ids=temb_ids
             )
         except FloodWait as e:
-            await asyncio.sleep(e.x)
-            msgs = await client.get_messages(
-                chat_id=client.db_channel.id, message_ids=temb_ids
+            await asyncio.sleep(e.value)
+            msgs = await c.get_messages(
+                chat_id=c.db_channel.id, message_ids=temb_ids
             )
-        except BaseException:
+        except Exception:
             pass
         total_messages += len(temb_ids)
         messages.extend(msgs)
     return messages
 
 
-async def get_message_id(client, message):
+async def get_message_id(c: Client, m: types.Message):
     if (
-        message.forward_from_chat
-        and message.forward_from_chat.id == client.db_channel.id
+        m.forward_from_chat
+        and m.forward_from_chat.id == c.db_channel.id
     ):
-        return message.forward_from_message_id
-    elif message.forward_from_chat or message.forward_sender_name or not message.text:
+        return m.forward_from_message_id
+    elif m.forward_from_chat or m.forward_sender_name or not m.text:
         return 0
     else:
         pattern = "https://t.me/(?:c/)?(.*)/(\\d+)"
-        matches = re.match(pattern, message.text)
+        matches = re.match(pattern, m.text)
         if not matches:
             return 0
         channel_id = matches.group(1)
         msg_id = int(matches.group(2))
         if channel_id.isdigit():
-            if f"-100{channel_id}" == str(client.db_channel.id):
+            if f"-100{channel_id}" == str(c.db_channel.id):
                 return msg_id
-        elif channel_id == client.db_channel.username:
+        elif channel_id == c.db_channel.username:
             return msg_id
 
 

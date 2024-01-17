@@ -18,7 +18,7 @@ async def users_info(bot):
         try:
             name = await bot.send_chat_action(int(id[0]), "typing")
         except FloodWait as e:
-            await asyncio.sleep(e.x)
+            await asyncio.sleep(e.value)
         except Exception:
             pass
         if bool(name):
