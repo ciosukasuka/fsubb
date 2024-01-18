@@ -25,8 +25,16 @@ HEROKU_API_KEY = os.environ.get("HEROKU_API_KEY", None)
 
 UPSTREAM_BRANCH = os.environ.get("UPSTREAM_BRANCH", "master")
 
+# Database type
+DATABASE_TYPE = os.getenv("DATABASE_TYPE", "")
 
-DB_URI = os.environ.get("DATABASE_URL", "")
+# Database SQL
+DB_URI = os.getenv("DB_URL", "")
+
+# Database MongoDB
+MONGO_NAME = os.getenv("MONGO_NAME", "")
+MONGO_URL = os.getenv("MONGO_URL", "")
+
 
 FORCE_SUB_ = {}
 FSUB_TOTAL = 1

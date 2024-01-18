@@ -15,9 +15,9 @@ from config import (
     PROTECT_CONTENT,
     START_MSG,
 )
-from database.sql import add_user, full_userbase, query_msg
+from database.db import add_user, full_userbase, del_user
 from pyrogram import filters
-from pyrogram.errors import FloodWait, InputUserDeactivated, UserIsBlocked
+from pyrogram.errors import FloodWait, UserDeactivated, UserIsBlocked
 from pyrogram.types import InlineKeyboardMarkup, Message
 
 from core import func
@@ -178,7 +178,7 @@ async def get_users(client: Bot, message: Message):
 @Bot.on_message(filters.command("broadcast") & filters.user(ADMINS))
 async def send_text(client: Bot, message: Message):
     if message.reply_to_message:
-        query = await query_msg()
+        query = await full_userbase()
         broadcast_msg = message.reply_to_message
         total = 0
         successful = 0
@@ -189,8 +189,7 @@ async def send_text(client: Bot, message: Message):
         pls_wait = await message.reply(
             "<code>Broadcasting Message Tunggu Sebentar...</code>"
         )
-        for row in query:
-            chat_id = int(row[0])
+        for chat_id in query:
             if chat_id not in ADMINS:
                 try:
                     await broadcast_msg.copy(chat_id, protect_content=PROTECT_CONTENT)
@@ -200,10 +199,13 @@ async def send_text(client: Bot, message: Message):
                     await broadcast_msg.copy(chat_id, protect_content=PROTECT_CONTENT)
                     successful += 1
                 except UserIsBlocked:
+                    await del_user(chat_id)
                     blocked += 1
-                except InputUserDeactivated:
+                except UserDeactivated:
+                    await del_user(chat_id)
                     deleted += 1
                 except Exception:
+                    await del_user(chat_id)
                     unsuccessful += 1
                 total += 1
         status = f"""<b><u>Berhasil Broadcast</u>
