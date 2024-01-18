@@ -1,67 +1,25 @@
-# (©)Codexbotz
-# Recode by @mrismanaziz
-# t.me/SharingUserbot & t.me/Lunatic0de
-
 import asyncio
 import base64
 import re
 
-from pyrogram import Client, filters, types
+from pyrogram import Client, filters, types, enums
 from pyrogram.errors import FloodWait, UserNotParticipant
 
-from config import ADMINS, FORCE_SUB_CHANNEL, FORCE_SUB_GROUP
+from config import ADMINS, FORCE_SUB_
 
 
-async def subschannel(filter, c: Client, m: types.Message):
-    if not FORCE_SUB_CHANNEL:
-        return True
-    user_id = m.from_user.id
+async def subscribed(filter, client, update):
+    user_id = update.from_user.id
     if user_id in ADMINS:
         return True
-    try:
-        member = await c.get_chat_member(
-            chat_id=FORCE_SUB_CHANNEL, user_id=user_id
-        )
-    except UserNotParticipant:
-        return False
 
-    return member.status in ["creator", "administrator", "member"]
+    for key, channel_id in FORCE_SUB_.items():
+        try:
+            member = await client.get_chat_member(chat_id=channel_id, user_id=user_id)
+        except UserNotParticipant:
+            return False
 
-
-async def subsgroup(filter, c: Client, m: types.Message):
-    if not FORCE_SUB_GROUP:
-        return True
-    user_id = m.from_user.id
-    if user_id in ADMINS:
-        return True
-    try:
-        member = await c.get_chat_member(chat_id=FORCE_SUB_GROUP, user_id=user_id)
-    except UserNotParticipant:
-        return False
-
-    return member.status in ["creator", "administrator", "member"]
-
-
-async def is_subscribed(filter, c: Client, m: types.Message):
-    if not FORCE_SUB_CHANNEL:
-        return True
-    if not FORCE_SUB_GROUP:
-        return True
-    user_id = m.from_user.id
-    if user_id in ADMINS:
-        return True
-    try:
-        member = await c.get_chat_member(chat_id=FORCE_SUB_GROUP, user_id=user_id)
-    except UserNotParticipant:
-        return False
-    try:
-        member = await c.get_chat_member(
-            chat_id=FORCE_SUB_CHANNEL, user_id=user_id
-        )
-    except UserNotParticipant:
-        return False
-
-    return member.status in ["creator", "administrator", "member"]
+    return member.status in [enums.ChatMemberStatus.OWNER, enums.ChatMemberStatus.ADMINISTRATOR, enums.ChatMemberStatus.MEMBER]
 
 
 async def encode(string):
@@ -71,9 +29,9 @@ async def encode(string):
     return base64_string
 
 async def decode(base64_string):
-    base64_string = base64_string.strip("=") # links generated before this commit will be having = sign, hence striping them to handle padding errors.
+    base64_string = base64_string.strip("=")
     base64_bytes = (base64_string + "=" * (-len(base64_string) % 4)).encode("ascii")
-    string_bytes = base64.urlsafe_b64decode(base64_bytes) 
+    string_bytes = base64.urlsafe_b64decode(base64_bytes)
     string = string_bytes.decode("ascii")
     return string
 
@@ -121,6 +79,4 @@ async def get_message_id(c: Client, m: types.Message):
             return msg_id
 
 
-subsgc = filters.create(subsgroup)
-subsch = filters.create(subschannel)
-subsall = filters.create(is_subscribed)
+is_fsubs = filters.create(subscribed)

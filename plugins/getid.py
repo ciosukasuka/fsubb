@@ -4,7 +4,7 @@ Syntax: /id"""
 from pyrogram import filters
 from pyrogram.types import Message
 
-from bot import Bot
+from core.bot import Bot
 
 
 @Bot.on_message(filters.command("id") & filters.private)

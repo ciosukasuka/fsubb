@@ -6,7 +6,7 @@ import asyncio
 from datetime import datetime
 from time import time
 
-from bot import Bot
+from core.bot import Bot
 from config import (
     ADMINS,
     CUSTOM_CAPTION,
@@ -20,9 +20,9 @@ from pyrogram import filters
 from pyrogram.errors import FloodWait, InputUserDeactivated, UserIsBlocked
 from pyrogram.types import InlineKeyboardMarkup, Message
 
-from helper_func import decode, get_messages, subsall, subsch, subsgc
+from core import func
 
-from .button import fsub_button, start_button
+from core.button import fsub_button, start_button
 
 START_TIME = datetime.now()
 START_TIME_ISO = START_TIME.replace(microsecond=0).isoformat()
@@ -46,7 +46,7 @@ async def _human_time_duration(seconds):
     return ", ".join(parts)
 
 
-@Bot.on_message(filters.command("start") & filters.private & subsall & subsch & subsgc)
+@Bot.on_message(filters.command("start") & filters.private & func.is_fsubs)
 async def start_command(client: Bot, message: Message):
     id = message.from_user.id
     user_name = (
@@ -65,13 +65,13 @@ async def start_command(client: Bot, message: Message):
             base64_string = text.split(" ", 1)[1]
         except BaseException:
             return
-        string = await decode(base64_string)
+        string = await func.decode(base64_string)
         argument = string.split("-")
         if len(argument) == 3:
             try:
                 start = int(int(argument[1]) / abs(client.db_channel.id))
                 end = int(int(argument[2]) / abs(client.db_channel.id))
-            except BaseException:
+            except Exception:
                 return
             if start <= end:
                 ids = range(start, end + 1)
@@ -90,7 +90,7 @@ async def start_command(client: Bot, message: Message):
                 return
         temp_msg = await message.reply("<code>Tunggu Sebentar...</code>")
         try:
-            messages = await get_messages(client, ids)
+            messages = await func.get_messages(client, ids)
         except Exception:
             await message.reply_text("<b>Telah Terjadi Error </b>🥺")
             return
@@ -112,7 +112,6 @@ async def start_command(client: Bot, message: Message):
                 await msg.copy(
                     chat_id=message.from_user.id,
                     caption=caption,
-                    parse_mode="html",
                     protect_content=PROTECT_CONTENT,
                     reply_markup=reply_markup,
                 )
@@ -122,14 +121,13 @@ async def start_command(client: Bot, message: Message):
                 await msg.copy(
                     chat_id=message.from_user.id,
                     caption=caption,
-                    parse_mode="html",
                     protect_content=PROTECT_CONTENT,
                     reply_markup=reply_markup,
                 )
             except Exception:
                 pass
     else:
-        out = start_button(client)
+        out = await start_button(client)
         await message.reply_text(
             text=START_MSG.format(
                 first=message.from_user.first_name,
@@ -151,7 +149,7 @@ async def start_command(client: Bot, message: Message):
 
 @Bot.on_message(filters.command("start") & filters.private)
 async def not_joined(client: Bot, message: Message):
-    buttons = fsub_button(client, message)
+    buttons = await fsub_button(client, message)
     await message.reply(
         text=FORCE_MSG.format(
             first=message.from_user.first_name,
@@ -198,14 +196,14 @@ async def send_text(client: Bot, message: Message):
                     await broadcast_msg.copy(chat_id, protect_content=PROTECT_CONTENT)
                     successful += 1
                 except FloodWait as e:
-                    await asyncio.sleep(e.x)
+                    await asyncio.sleep(e.value)
                     await broadcast_msg.copy(chat_id, protect_content=PROTECT_CONTENT)
                     successful += 1
                 except UserIsBlocked:
                     blocked += 1
                 except InputUserDeactivated:
                     deleted += 1
-                except BaseException:
+                except Exception:
                     unsuccessful += 1
                 total += 1
         status = f"""<b><u>Berhasil Broadcast</u>

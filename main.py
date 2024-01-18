@@ -1,6 +1,6 @@
 
 if __name__ == "__main__":
     import uvloop
-    import bot
+    from core.bot import Bot
     uvloop.install()
-    bot.Bot().run()
+    Bot().run()
