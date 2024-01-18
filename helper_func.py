@@ -85,7 +85,7 @@ async def get_messages(c: Client, message_ids):
         temb_ids = message_ids[total_messages : total_messages + 200]
         try:
             msgs = await c.get_messages(
-                chat_id=client.db_channel.id, message_ids=temb_ids
+                chat_id=c.db_channel.id, message_ids=temb_ids
             )
         except FloodWait as e:
             await asyncio.sleep(e.value)
