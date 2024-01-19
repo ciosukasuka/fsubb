@@ -8,7 +8,7 @@ from pyrogram import filters, types
 
 @Bot.on_message(filters.command("log") & filters.user(config.ADMINS))
 async def logs(_, m: types.Message):
-    logs_path = "log.txt"
+    logs_path = "logs.txt"
     if exists(logs_path):
         try:
             await m.reply_document(
@@ -18,5 +18,5 @@ async def logs(_, m: types.Message):
         except Exception as e:
             remove(logs_path)
             LOGGER(__name__).warning(e)
-    elif not path.exists(logs_path):
+    elif not exists(logs_path):
         await m.reply_text("Tidak ada logs yang ditemukan!")

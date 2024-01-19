@@ -21,7 +21,9 @@ from core import func
             "log",
             "users",
             "batch",
-            "broadcast"
+            "broadcast",
+            "about",
+            "env"
         ]
     )
 )
