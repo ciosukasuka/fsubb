@@ -17,7 +17,7 @@ from config import (
 )
 from database.db import add_user, full_userbase, del_user
 from pyrogram import filters
-from pyrogram.errors import FloodWait, UserDeactivated, UserIsBlocked
+from pyrogram.errors import FloodWait, UserDeactivated, UserIsBlocked, PeerIdInvalid
 from pyrogram.types import InlineKeyboardMarkup, Message
 
 from core import func
@@ -56,7 +56,7 @@ async def start_command(client: Bot, message: Message):
     )
 
     try:
-        await add_user(id, user_name)
+        add_user(id, user_name)
     except:
         pass
     text = message.text
@@ -124,6 +124,8 @@ async def start_command(client: Bot, message: Message):
                     protect_content=PROTECT_CONTENT,
                     reply_markup=reply_markup,
                 )
+            except (PeerIdInvalid, UserIsBlocked):
+                return
             except Exception:
                 pass
     else:
@@ -171,14 +173,14 @@ async def get_users(client: Bot, message: Message):
     msg = await client.send_message(
         chat_id=message.chat.id, text="<code>Processing ...</code>"
     )
-    users = await full_userbase()
+    users = full_userbase()
     await msg.edit(f"{len(users)} <b>Pengguna menggunakan bot ini</b>")
 
 
 @Bot.on_message(filters.command("broadcast") & filters.user(ADMINS))
 async def send_text(client: Bot, message: Message):
     if message.reply_to_message:
-        query = await full_userbase()
+        query = full_userbase()
         broadcast_msg = message.reply_to_message
         total = 0
         successful = 0
@@ -195,17 +197,17 @@ async def send_text(client: Bot, message: Message):
                     await broadcast_msg.copy(chat_id, protect_content=PROTECT_CONTENT)
                     successful += 1
                 except FloodWait as e:
-                    await asyncio.sleep(e.value)
+                    await asyncio.sleep(e.value + 3)
                     await broadcast_msg.copy(chat_id, protect_content=PROTECT_CONTENT)
                     successful += 1
-                except UserIsBlocked:
-                    await del_user(chat_id)
+                except (UserIsBlocked, PeerIdInvalid):
+                    del_user(chat_id)
                     blocked += 1
                 except UserDeactivated:
-                    await del_user(chat_id)
+                    del_user(chat_id)
                     deleted += 1
                 except Exception:
-                    await del_user(chat_id)
+                    del_user(chat_id)
                     unsuccessful += 1
                 total += 1
         status = f"""<b><u>Berhasil Broadcast</u>

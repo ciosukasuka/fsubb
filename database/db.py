@@ -37,7 +37,7 @@ elif DATABASE_TYPE == 'mongo':
     user_data = database['users']
 
 # Database MongoDB dan SQL
-async def add_user(id, user_name):
+def add_user(id, user_name):
     if DATABASE_TYPE == 'sql':
         with INSERTION_LOCK:
             msg = SESSION.query(Broadcast).get(id)
@@ -50,7 +50,7 @@ async def add_user(id, user_name):
         if not found:
             user_data.insert_one({'_id': id, 'user_name': user_name})
 
-async def full_userbase():
+def full_userbase():
     if DATABASE_TYPE == 'sql':
         users = SESSION.query(Broadcast).all()
         SESSION.close()
@@ -61,7 +61,7 @@ async def full_userbase():
         return user_ids
 
 
-async def del_user(user_id: int):
+def del_user(user_id: int):
     if DATABASE_TYPE == 'sql':
         with INSERTION_LOCK:
             user_to_delete = SESSION.query(Broadcast).filter_by(id=user_id).first()
