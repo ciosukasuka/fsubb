@@ -3,13 +3,13 @@ from sqlalchemy import TEXT, Column, Numeric, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import scoped_session, sessionmaker
 from pymongo import MongoClient
-from config import DATABASE_TYPE, DB_URI, MONGO_URL, MONGO_NAME
+from config import DATABASE_TYPE, DB_URL, DB_NAME
 
 
 # Database SQL
 if DATABASE_TYPE == 'sql':
     def start() -> scoped_session:
-        engine = create_engine(DB_URI, client_encoding="utf8")
+        engine = create_engine(DB_URL, client_encoding="utf8")
         BASE.metadata.bind = engine
         BASE.metadata.create_all(engine)
         return scoped_session(sessionmaker(bind=engine, autoflush=False))
@@ -32,8 +32,8 @@ if DATABASE_TYPE == 'sql':
 
 # Database mongo
 elif DATABASE_TYPE == 'mongo':
-    dbclient = MongoClient(MONGO_URL)
-    database = dbclient[MONGO_NAME]
+    dbclient = MongoClient(DB_URL)
+    database = dbclient[DB_NAME]
     user_data = database['users']
 
 # Database MongoDB dan SQL
