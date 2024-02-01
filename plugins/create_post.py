@@ -75,11 +75,11 @@ async def channel_post(client: Bot, message: Message):
 
 @Bot.on_message(filters.channel & filters.incoming & filters.chat(CHANNEL_DB))
 async def new_post(client: Bot, message: Message):
-    if DISABLE_BUTTON:
+    if DISABLE_CHANNEL_BUTTON:
         return
     converted_id = message.id * abs(client.db_channel.id)
     string = f"get-{converted_id}"
-    base64_string = await encode(string)
+    base64_string = await func.encode(string)
     link = f"https://t.me/{client.username}?start={base64_string}"
     reply_markup = InlineKeyboardMarkup(
         [
